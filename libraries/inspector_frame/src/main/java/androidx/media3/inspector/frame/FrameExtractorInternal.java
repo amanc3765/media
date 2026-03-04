@@ -191,6 +191,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private MediaSource.Factory currentMediaSourceFactory;
   private long thumbnailPresentationTimeMs;
 
+  @Nullable
+  private String currentDecoderName;
+
   private FrameExtractorInternal() {
     referenceCount = new AtomicInteger(0);
     executionSequencer = ExecutionSequencer.create();
@@ -231,6 +234,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 currentMediaSourceFactory = null;
                 lastSeekDedupeFrame = null;
                 thumbnailPresentationTimeMs = C.TIME_UNSET;
+                currentDecoderName = null;
               }
               return null;
             },
@@ -356,6 +360,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       currentExtractHdrFrames = request.extractHdrFrames;
       currentGlObjectsProvider = request.glObjectsProvider;
       currentMediaSourceFactory = request.mediaSourceFactory;
+      currentDecoderName = null;
 
       MediaSource.Factory mediaSourceFactoryToUse;
       if (request.mediaSourceFactory != null) {
@@ -431,6 +436,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           frameBeingExtractedCompleter.set(checkNotNull(internal.lastSeekDedupeFrame));
         }
       }
+    }
+
+    @Override
+    public void onVideoDecoderInitialized(
+        EventTime eventTime,
+        String decoderName,
+        long initializedTimestampMs,
+        long initializationDurationMs) {
+      internal.currentDecoderName = decoderName;
     }
   }
 
@@ -594,7 +608,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       CallbackToFutureAdapter.Completer<FrameExtractor.Frame> frameBeingExtractedCompleter =
           checkNotNull(internal.activeTaskCompleter.getAndSet(null));
-      FrameExtractor.Frame frame = new FrameExtractor.Frame(usToMs(presentationTimeUs), bitmap);
+      FrameExtractor.Frame frame = new FrameExtractor.Frame(usToMs(presentationTimeUs), internal.currentDecoderName,
+          bitmap);
       internal.lastSeekDedupeFrame = frame;
       frameBeingExtractedCompleter.set(frame);
       // Drop frame: do not call outputListener.onOutputFrameAvailable().

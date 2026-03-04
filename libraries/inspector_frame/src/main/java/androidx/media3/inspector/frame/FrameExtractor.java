@@ -209,11 +209,16 @@ public final class FrameExtractor implements AutoCloseable {
     /** The presentation timestamp of the extracted frame, in milliseconds. */
     public final long presentationTimeMs;
 
+    /** The exact name of the decoder used to extract the frame, if known. */
+    @Nullable
+    public final String decoderName;
+
     /** The extracted frame contents. */
     public final Bitmap bitmap;
 
-    /* package */ Frame(long presentationTimeMs, Bitmap bitmap) {
+    /* package */ Frame(long presentationTimeMs, @Nullable String decoderName, Bitmap bitmap) {
       this.presentationTimeMs = presentationTimeMs;
+      this.decoderName = decoderName;
       this.bitmap = bitmap;
     }
   }
