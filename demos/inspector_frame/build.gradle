@@ -44,6 +44,8 @@ dependencies {
     implementation project(modulePrefix + 'lib-inspector-frame')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:' + androidxLifecycleVersion
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-guava:' + kotlinxCoroutinesVersion
 
     // Test dependencies
     androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
